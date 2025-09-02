@@ -1,0 +1,16 @@
+<suite name="Slider Suite">
+    <test name="IOSAppiumTests">
+        <classes>
+            <class name="tests.ProgressViewsTest"/>
+            <class name="tests.SegmentControlsTest"/>
+            <class name="tests.SlidersPageTest"/>
+            <class name="tests.ActionSheetTests"/>
+            <class name="tests.AlertViewTest"/>
+            <class name="tests.ButtonPageTest"/>
+            <class name="tests.DatePickerTest"/>
+            <class name="tests.PickerViewTest"/>
+            <class name="tests.HomePageTest"/>
+            <class name="tests.SteppersPageTest"/>
+        </classes>
+    </test>
+</suite>
