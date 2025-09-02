@@ -1,0 +1,38 @@
+name: IOSProject CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: # allow manual runs from Actions tab
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 24
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn -B clean verify
+
+      # Optional: run XML suite instead of default tests
+      - name: Run TestNG XML suite
+        if: always() # remove if you don't want it every run
+        run: mvn -B test -P xml-suite
+
+      - name: Archive surefire test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/
