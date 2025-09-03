@@ -14,11 +14,11 @@ jobs:
         shell: bash
 
     steps:
-      # 1️⃣ Checkout the repo
+      # 1️⃣ Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2️⃣ Set up JDK for Maven
+      # 2️⃣ Set up Java
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -32,27 +32,39 @@ jobs:
       # 4️⃣ Build the iOS app
       - name: Build iOS app
         run: |
-          xcodebuild -workspace UICatalog.xcworkspace \
-                     -scheme UICatalog \
-                     -sdk iphonesimulator \
-                     -configuration Debug \
-                     -derivedDataPath build
+          if [ -f "UICatalog.xcworkspace" ]; then
+            echo "Building workspace..."
+            xcodebuild -workspace UICatalog.xcworkspace \
+                       -scheme UICatalog \
+                       -sdk iphonesimulator \
+                       -configuration Debug \
+                       -derivedDataPath build
+          elif [ -f "UICatalog.xcodeproj" ]; then
+            echo "Building project..."
+            xcodebuild -project UICatalog.xcodeproj \
+                       -scheme UICatalog \
+                       -sdk iphonesimulator \
+                       -configuration Debug \
+                       -derivedDataPath build
+          else
+            echo "Error: No Xcode workspace or project found!"
+            exit 1
+          fi
 
       # 5️⃣ Boot iOS simulator
       - name: Boot iOS Simulator
         run: |
+          SIM_NAME="iPhone 16 Pro"
           xcrun simctl list devices
-          xcrun simctl boot "iPhone 16 Pro" || true
-          xcrun simctl bootstatus "iPhone 16 Pro" -b
+          xcrun simctl boot "$SIM_NAME" || true
+          xcrun simctl bootstatus "$SIM_NAME" -b
 
-      # 6️⃣ Install Appium CLI and start server
-      - name: Start Appium server
+      # 6️⃣ Install and start Appium
+      - name: Install and start Appium
         run: |
           npm install -g appium
           appium &
 
-      # 7️⃣ Run your tests
+      # 7️⃣ Run tests
       - name: Run Maven tests
-        run: |
-          export APP_PATH=$(pwd)/build/Build/Products/Debug-iphonesimulator/UICatalog.app
-          mvn clean test -Dapp.path=$APP_PATH
+        run: mvn clean test
