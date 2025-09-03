@@ -14,11 +14,11 @@ jobs:
         shell: bash
 
     steps:
-      # 1️⃣ Checkout code
+      # 1️⃣ Checkout code (full repo)
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # ensures full repository is cloned
 
       # 2️⃣ Set up Java
       - name: Set up Java
@@ -34,7 +34,6 @@ jobs:
       # 4️⃣ Build the iOS project
       - name: Build iOS project
         run: |
-          cd IOSProject
           echo "Building UICatalog.xcodeproj..."
           xcodebuild -project UICatalog.xcodeproj \
                      -scheme UICatalog \
@@ -46,7 +45,9 @@ jobs:
       - name: Boot iOS Simulator
         run: |
           SIM_NAME="iPhone 16 Pro"
+          echo "Listing available simulators:"
           xcrun simctl list devices
+          echo "Booting simulator: $SIM_NAME"
           xcrun simctl boot "$SIM_NAME" || true
           xcrun simctl bootstatus "$SIM_NAME" -b
 
