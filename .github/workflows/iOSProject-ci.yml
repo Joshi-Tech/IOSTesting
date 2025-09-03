@@ -32,14 +32,14 @@ jobs:
       # 4️⃣ Build the iOS app
       - name: Build iOS app
         run: |
-          if [ -f "UICatalog.xcworkspace" ]; then
+          if [ -f "./UICatalog.xcworkspace" ]; then
             echo "Building workspace..."
             xcodebuild -workspace UICatalog.xcworkspace \
                        -scheme UICatalog \
                        -sdk iphonesimulator \
                        -configuration Debug \
                        -derivedDataPath build
-          elif [ -f "UICatalog.xcodeproj" ]; then
+          elif [ -f "./UICatalog.xcodeproj" ]; then
             echo "Building project..."
             xcodebuild -project UICatalog.xcodeproj \
                        -scheme UICatalog \
