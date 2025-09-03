@@ -32,21 +32,22 @@ jobs:
       # 4️⃣ Boot iOS simulator
       - name: Boot iOS Simulator
         run: |
-          # List available simulators
           xcrun simctl list devices
-          # Boot iPhone 16 Pro simulator
           xcrun simctl boot "iPhone 16 Pro" || true
-          # Wait for simulator to be ready
           xcrun simctl bootstatus "iPhone 16 Pro" -b
 
-      # 5️⃣ Start Appium server (if needed)
+      # 5️⃣ Install Appium and XCUITest driver
+      - name: Install Appium and XCUITest driver
+        run: |
+          npm install -g appium
+          appium driver install xcuitest
+
+      # 6️⃣ Start Appium server
       - name: Start Appium server
         run: |
-          # Install Appium CLI globally
-          npm install -g appium
           # Start Appium server in background
-          appium &
+          nohup appium > appium.log 2>&1 &
 
-      # 6️⃣ Run your tests
+      # 7️⃣ Run your tests
       - name: Run Maven tests
         run: mvn clean test
