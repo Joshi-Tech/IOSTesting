@@ -14,11 +14,9 @@ jobs:
         shell: bash
 
     steps:
-      # 1️⃣ Checkout code (full repo)
+      # 1️⃣ Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # ensures full repository is cloned
 
       # 2️⃣ Set up Java
       - name: Set up Java
@@ -31,32 +29,38 @@ jobs:
       - name: Install Maven dependencies
         run: mvn clean install -DskipTests
 
-      # 4️⃣ Build the iOS project
-      - name: Build iOS project
+      # 4️⃣ Verify required files exist
+      - name: Verify build resources
         run: |
-          echo "Building UICatalog.xcodeproj..."
-          xcodebuild -project UICatalog.xcodeproj \
+          [[ -f "UICatalog/UICatalog-Info.md" ]] || (echo "❌ Missing UICatalog-Info.md" && exit 1)
+          [[ -f "UICatalog/en.lproj/Localizable.strings" ]] || (echo "⚠️ Localizable.strings missing, creating placeholder" && mkdir -p UICatalog/en.lproj && echo '/* Placeholder */' > UICatalog/en.lproj/Localizable.strings)
+
+      # 5️⃣ Build the iOS app
+      - name: Build iOS app
+        run: |
+          echo "📦 Building UICatalog.xcodeproj..."
+          xcodebuild -project UICatalog/UICatalog.xcodeproj \
                      -scheme UICatalog \
                      -sdk iphonesimulator \
                      -configuration Debug \
                      -derivedDataPath build
 
-      # 5️⃣ Boot iOS simulator
+      # 6️⃣ Boot iOS simulator
       - name: Boot iOS Simulator
         run: |
           SIM_NAME="iPhone 16 Pro"
-          echo "Listing available simulators:"
+          echo "📱 Available devices:"
           xcrun simctl list devices
-          echo "Booting simulator: $SIM_NAME"
+          echo "🔄 Booting $SIM_NAME"
           xcrun simctl boot "$SIM_NAME" || true
           xcrun simctl bootstatus "$SIM_NAME" -b
 
-      # 6️⃣ Install and start Appium
+      # 7️⃣ Install and start Appium
       - name: Install and start Appium
         run: |
           npm install -g appium
           appium &
 
-      # 7️⃣ Run Maven tests
+      # 8️⃣ Run tests
       - name: Run Maven tests
         run: mvn clean test
