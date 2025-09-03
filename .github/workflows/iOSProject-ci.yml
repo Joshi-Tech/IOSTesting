@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '24'
 
       # 3️⃣ Install Maven dependencies
       - name: Install Maven dependencies
@@ -34,10 +34,10 @@ jobs:
         run: |
           # List available simulators
           xcrun simctl list devices
-          # Boot iPhone 14 simulator
-          xcrun simctl boot "iPhone 14" || true
+          # Boot iPhone 16 Pro simulator
+          xcrun simctl boot "iPhone 16 Pro" || true
           # Wait for simulator to be ready
-          xcrun simctl bootstatus "iPhone 14" -b
+          xcrun simctl bootstatus "iPhone 16 Pro" -b
 
       # 5️⃣ Start Appium server (if needed)
       - name: Start Appium server
@@ -49,4 +49,4 @@ jobs:
 
       # 6️⃣ Run your tests
       - name: Run Maven tests
-        run: mvn test
+        run: mvn clean test
