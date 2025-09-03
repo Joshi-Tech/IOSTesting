@@ -55,12 +55,23 @@ jobs:
           xcrun simctl boot "$SIM_NAME" || true
           xcrun simctl bootstatus "$SIM_NAME" -b
 
-      # 7️⃣ Install and start Appium
-      - name: Install and start Appium
+      # 7️⃣ Install Appium + XCUITest driver
+      - name: Install Appium and XCUITest driver
         run: |
           npm install -g appium
-          appium &
+          appium driver install xcuitest
+          appium driver list --installed
 
-      # 8️⃣ Run tests
+      # 8️⃣ Start Appium server
+      - name: Start Appium server
+        run: |
+          appium --base-path /wd/hub &
+          sleep 5
+
+      # 9️⃣ Run tests
       - name: Run Maven tests
-        run: mvn clean test
+        env:
+          APP_PATH: ${{ github.workspace }}/build/Products/Debug-iphonesimulator/UICatalog.app
+        run: |
+          echo "Using APP_PATH=$APP_PATH"
+          mvn clean test -Dapp.path="$APP_PATH"
