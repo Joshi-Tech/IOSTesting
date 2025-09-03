@@ -29,25 +29,30 @@ jobs:
       - name: Install Maven dependencies
         run: mvn clean install -DskipTests
 
-      # 4️⃣ Boot iOS simulator
+      # 4️⃣ Build the iOS app
+      - name: Build iOS app
+        run: |
+          xcodebuild -workspace UICatalog.xcworkspace \
+                     -scheme UICatalog \
+                     -sdk iphonesimulator \
+                     -configuration Debug \
+                     -derivedDataPath build
+
+      # 5️⃣ Boot iOS simulator
       - name: Boot iOS Simulator
         run: |
           xcrun simctl list devices
           xcrun simctl boot "iPhone 16 Pro" || true
           xcrun simctl bootstatus "iPhone 16 Pro" -b
 
-      # 5️⃣ Install Appium and XCUITest driver
-      - name: Install Appium and XCUITest driver
-        run: |
-          npm install -g appium
-          appium driver install xcuitest
-
-      # 6️⃣ Start Appium server
+      # 6️⃣ Install Appium CLI and start server
       - name: Start Appium server
         run: |
-          # Start Appium server in background
-          nohup appium > appium.log 2>&1 &
+          npm install -g appium
+          appium &
 
       # 7️⃣ Run your tests
       - name: Run Maven tests
-        run: mvn clean test
+        run: |
+          export APP_PATH=$(pwd)/build/Build/Products/Debug-iphonesimulator/UICatalog.app
+          mvn clean test -Dapp.path=$APP_PATH
