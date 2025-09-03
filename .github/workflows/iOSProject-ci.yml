@@ -18,60 +18,45 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # ensures full repository is cloned
 
-      # 2️⃣ List repo contents for debugging
-      - name: Show repo files
-        run: |
-          pwd
-          ls -la
-          find . -name "*.xcodeproj"
-          find . -name "*.strings"
-          find . -name "*.md"
-
-      # 3️⃣ Check required build files exist
-      - name: Verify build resources
-        run: |
-          [[ -f "UICatalog/uicatalog-info.md" ]] || (echo "Missing uicatalog-info.md" && exit 1)
-          [[ -f "UICatalog/en.lproj/Localizable.strings" ]] || (echo "Missing Localizable.strings" && exit 1)
-
-      # 4️⃣ Set up Java
+      # 2️⃣ Set up Java
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '24'
 
-      # 5️⃣ Install Maven dependencies
+      # 3️⃣ Install Maven dependencies
       - name: Install Maven dependencies
         run: mvn clean install -DskipTests
 
-      # 6️⃣ Build iOS project
+      # 4️⃣ Build the iOS project
       - name: Build iOS project
         run: |
           echo "Building UICatalog.xcodeproj..."
-          xcodebuild -project UICatalog/UICatalog.xcodeproj \
+          xcodebuild -project UICatalog.xcodeproj \
                      -scheme UICatalog \
                      -sdk iphonesimulator \
                      -configuration Debug \
-                     -derivedDataPath UICatalog/build
+                     -derivedDataPath build
 
-      # 7️⃣ Boot iOS simulator
+      # 5️⃣ Boot iOS simulator
       - name: Boot iOS Simulator
         run: |
           SIM_NAME="iPhone 16 Pro"
-          echo "Available simulators:"
+          echo "Listing available simulators:"
           xcrun simctl list devices
           echo "Booting simulator: $SIM_NAME"
           xcrun simctl boot "$SIM_NAME" || true
           xcrun simctl bootstatus "$SIM_NAME" -b
 
-      # 8️⃣ Install and start Appium
+      # 6️⃣ Install and start Appium
       - name: Install and start Appium
         run: |
           npm install -g appium
           appium &
 
-      # 9️⃣ Run Maven tests
+      # 7️⃣ Run Maven tests
       - name: Run Maven tests
         run: mvn clean test
