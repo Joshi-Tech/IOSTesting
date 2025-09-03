@@ -36,3 +36,8 @@ build/
 
 ### Mac OS ###
 .DS_Store
+###ssh files####
+ sshKey
+ sshKey.pub
+ sshKeyReal
+ sshKeyReal.pub
