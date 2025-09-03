@@ -34,6 +34,7 @@ jobs:
       # 4️⃣ Build the iOS project
       - name: Build iOS project
         run: |
+          cd IOSProject
           echo "Building UICatalog.xcodeproj..."
           xcodebuild -project UICatalog.xcodeproj \
                      -scheme UICatalog \
