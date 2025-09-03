@@ -17,6 +17,8 @@ jobs:
       # 1️⃣ Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       # 2️⃣ Set up Java
       - name: Set up Java
@@ -29,27 +31,15 @@ jobs:
       - name: Install Maven dependencies
         run: mvn clean install -DskipTests
 
-      # 4️⃣ Build the iOS app
-      - name: Build iOS app
+      # 4️⃣ Build the iOS project
+      - name: Build iOS project
         run: |
-          if [ -f "./UICatalog.xcworkspace" ]; then
-            echo "Building workspace..."
-            xcodebuild -workspace UICatalog.xcworkspace \
-                       -scheme UICatalog \
-                       -sdk iphonesimulator \
-                       -configuration Debug \
-                       -derivedDataPath build
-          elif [ -f "./UICatalog.xcodeproj" ]; then
-            echo "Building project..."
-            xcodebuild -project UICatalog.xcodeproj \
-                       -scheme UICatalog \
-                       -sdk iphonesimulator \
-                       -configuration Debug \
-                       -derivedDataPath build
-          else
-            echo "Error: No Xcode workspace or project found!"
-            exit 1
-          fi
+          echo "Building UICatalog.xcodeproj..."
+          xcodebuild -project UICatalog.xcodeproj \
+                     -scheme UICatalog \
+                     -sdk iphonesimulator \
+                     -configuration Debug \
+                     -derivedDataPath build
 
       # 5️⃣ Boot iOS simulator
       - name: Boot iOS Simulator
@@ -65,6 +55,6 @@ jobs:
           npm install -g appium
           appium &
 
-      # 7️⃣ Run tests
+      # 7️⃣ Run Maven tests
       - name: Run Maven tests
         run: mvn clean test
