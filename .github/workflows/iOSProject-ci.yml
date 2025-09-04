@@ -36,13 +36,33 @@ jobs:
         run: |
           appium driver install xcuitest
 
+      - name: Boot iOS Simulator (headless)
+        run: |
+          SIMULATOR_NAME="iPhone 16 Pro"
+          SIMULATOR_RUNTIME=$(xcrun simctl list runtimes | grep "iOS 18.6" | head -n1 | awk '{print $NF}' | tr -d '()')
+
+          # Create simulator only if it doesn't already exist
+          if ! xcrun simctl list devices | grep -q "TestSimulator"; then
+            xcrun simctl create TestSimulator "$SIMULATOR_NAME" com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro $SIMULATOR_RUNTIME
+          fi
+
+          # Boot simulator in headless mode
+          xcrun simctl boot TestSimulator || true
+          xcrun simctl bootstatus TestSimulator -b
+          xcrun simctl list devices | grep TestSimulator
+
       - name: Start Appium server
         run: |
           appium --base-path /wd/hub &
-          sleep 5
+          sleep 10
 
       - name: Build with Maven
         run: mvn clean install
 
       - name: Run Tests
-        run: mvn test -Dserver.path=/wd/hub
+        run: |
+          mvn test \
+            -Dserver.path=http://127.0.0.1:4723/wd/hub \
+            -DdeviceName="iPhone 16 Pro" \
+            -DplatformVersion="18.6" \
+            -DappPath="$GITHUB_WORKSPACE/UICatalog.app"
