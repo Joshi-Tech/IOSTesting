@@ -1,81 +1,29 @@
-package tests;
+package com.mobile.automation.tests;
 
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.ios.options.XCUITestOptions;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.openqa.selenium.WebDriver;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class BaseTest {
-    protected static IOSDriver driver;
 
-    @BeforeMethod
-    public IOSDriver setUp() throws MalformedURLException {
-        // ✅ Read app path from system property (set in GitHub Actions)
-        // If not set, fall back to your local DerivedData path
-        String appPath = System.getProperty(
-                "app.path",
-                "/Users/lkjoshi/Library/Developer/Xcode/DerivedData/UICatalog-gwynisoydgnpybcuqfqtlmtnfhrg/Build/Products/Debug-iphonesimulator/UICatalog.app"
-        );
+    public static WebDriver driver;
 
-        System.out.println("🚀 Using app from: " + appPath);
+    public WebDriver initializeDriver() throws MalformedURLException {
+        XCUITestOptions options = new XCUITestOptions();
+        options.setDeviceName("iPhone 15 Pro");
+        options.setPlatformVersion("17.5");
 
-        XCUITestOptions options = new XCUITestOptions()
-                .setPlatformName("iOS")
-                .setPlatformVersion("18.6")
-                .setDeviceName("iPhone 16 Pro")
-                .setAutomationName("XCUITest")
-                .setApp(appPath);
+        // Allow overriding the app path via -Dapp.path
+        options.setApp(System.getProperty("app.path", "/Users/qa/Documents/UICatalog.app"));
+        options.setPlatformName("iOS");
 
-        return driver = new IOSDriver(new URL("http://127.0.0.1:4723"), options);
-    }
+        // Allow overriding the base path via -Dserver.path
+        String basePath = System.getProperty("server.path", "");
+        String serverUrl = "http://127.0.0.1:4723" + basePath;
 
-    @AfterMethod
-    public void tearDown() {
-        if (driver != null) {
-            driver.quit();
-        }
+        return driver = new IOSDriver(new URL(serverUrl), options);
     }
 }
-
-
-
-
-
-
-/*
-package tests;
-
-import io.appium.java_client.ios.IOSDriver;
-import io.appium.java_client.ios.options.XCUITestOptions;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-
-public class BaseTest {
-    protected static IOSDriver driver;
-
-    @BeforeMethod
-    public IOSDriver setUp() throws MalformedURLException {
-        XCUITestOptions options = new XCUITestOptions()
-                .setPlatformName("iOS")
-                .setPlatformVersion("18.6")
-                .setDeviceName("iPhone 16 Pro")
-                .setAutomationName("XCUITest")
-                .setApp("/Users/lkjoshi/Library/Developer/Xcode/DerivedData/UICatalog-gwynisoydgnpybcuqfqtlmtnfhrg/Build/Products/Debug-iphonesimulator/UICatalog.app");
-
-     return    driver = new IOSDriver(new URL("http://127.0.0.1:4723"), options);
-    }
-
-    @AfterMethod
-    public void tearDown() {
-        if (driver != null) {
-            driver.quit();
-        }
-    }
-}
-*/
