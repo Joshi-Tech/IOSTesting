@@ -1,4 +1,4 @@
-package com.mobile.automation.tests;
+package tests;
 
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.ios.options.XCUITestOptions;
