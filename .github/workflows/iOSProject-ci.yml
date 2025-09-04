@@ -60,8 +60,13 @@ jobs:
           echo "Using runtime: $SIMULATOR_RUNTIME"
           echo "Using device: $DEVICE_NAME ($DEVICE_TYPE)"
 
-          # Create simulator (ignore if already exists)
-          xcrun simctl create TestSimulator "$DEVICE_NAME" $DEVICE_TYPE $SIMULATOR_RUNTIME || true
+          # Check if TestSimulator already exists
+          if xcrun simctl list devices | grep -q "TestSimulator"; then
+            echo "Reusing existing TestSimulator"
+          else
+            echo "Creating new TestSimulator"
+            xcrun simctl create TestSimulator $DEVICE_TYPE $SIMULATOR_RUNTIME
+          fi
 
           # Boot simulator in headless mode
           xcrun simctl boot TestSimulator || true
