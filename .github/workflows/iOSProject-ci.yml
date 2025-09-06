@@ -32,31 +32,37 @@ jobs:
           npm install -g appium
           appium -v
 
+      - name: Appium Doctor
+        run: appium doctor
+
       - name: Install Appium XCUITest driver
-        run: |
-          appium driver install xcuitest
+        run: appium driver install xcuitest
 
       - name: Build UICatalog app
         run: |
           cd IOSTesting/UICatalog
-
-          # Build the UICatalog app for iOS simulator
           xcodebuild \
             -project UICatalog.xcodeproj \
             -scheme UICatalog \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
             CONFIGURATION_BUILD_DIR=$PWD/build
-
           ls -R build
-          
-          # Export app path
           echo "APP_PATH=$PWD/build/UICatalog.app" >> $GITHUB_ENV
+
+      - name: Debug App Path
+        run: |
+          echo "App Path: $APP_PATH"
+          ls -l "$APP_PATH" || echo "UICatalog.app not found!"
 
       - name: Start Appium server
         run: |
-          appium --base-path /wd/hub &
+          appium --base-path /wd/hub > appium.log 2>&1 &
           sleep 5
+          cat appium.log
+
+      - name: Check Appium Server
+        run: curl http://127.0.0.1:4723/wd/hub/status
 
       - name: Build with Maven
         run: mvn clean install
