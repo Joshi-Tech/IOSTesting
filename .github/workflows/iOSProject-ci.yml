@@ -38,7 +38,7 @@ jobs:
 
       - name: Build UICatalog app
         run: |
-          cd IOSProject/UICatalog
+          cd IOSTesting/UICatalog
 
           # Build the UICatalog app for iOS simulator
           xcodebuild \
